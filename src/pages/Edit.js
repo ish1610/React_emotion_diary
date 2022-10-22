@@ -16,7 +16,7 @@ const Edit = () => {
   const navigate = useNavigate();
 
   const { id } = useParams();
-  console.log(data);
+  // console.log(data);
 
   useEffect(() => {
     if (data.length >= 1) {
@@ -25,6 +25,7 @@ const Edit = () => {
       if (targetDiary) {
         setOriginData(targetDiary);
       } else {
+        alert("없는 일기입니다.");
         // 두 번째 인수 { replace: true } 뒤로가기 금지 옵션
         navigate("/", { replace: true });
       }

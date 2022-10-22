@@ -1,4 +1,10 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { useNavigate } from "react-router-dom";
 import DiaryDispatchContext from "../store/diaryDispatchContext";
 
@@ -6,61 +12,20 @@ import Button from "./Button";
 import EmotionItem from "./EmotionItem";
 import Header from "./Header";
 
-// 날짜 변환 함수 (2022-10-18 형태로 변환)
-const getStringDate = (date) => {
-  let year = date.getFullYear();
-  let month = date.getMonth() + 1;
-  let day = date.getDate();
-
-  if (month < 10) {
-    month = `0${month}`;
-  }
-
-  if (day < 10) {
-    day = `0${day}`;
-  }
-
-  return `${year}-${month}-${day}`;
-};
-
-const emotionList = [
-  {
-    emotion_id: 1,
-    emotion_img: process.env.PUBLIC_URL + "/assets/emotion1.png",
-    emotion_descript: "완전 좋음",
-  },
-  {
-    emotion_id: 2,
-    emotion_img: process.env.PUBLIC_URL + "/assets/emotion2.png",
-    emotion_descript: "좋음",
-  },
-  {
-    emotion_id: 3,
-    emotion_img: process.env.PUBLIC_URL + "/assets/emotion3.png",
-    emotion_descript: "보통",
-  },
-  {
-    emotion_id: 4,
-    emotion_img: process.env.PUBLIC_URL + "/assets/emotion4.png",
-    emotion_descript: "나쁨",
-  },
-  {
-    emotion_id: 5,
-    emotion_img: process.env.PUBLIC_URL + "/assets/emotion5.png",
-    emotion_descript: "끔찍함",
-  },
-];
+import { getStringDate } from "../util/date";
+import { emotionList } from "../util/emotion";
 
 const DiaryEditor = ({ isEdit, originData }) => {
+  const { onRemove } = useContext(DiaryDispatchContext);
   const { onCreate, onEdit } = useContext(DiaryDispatchContext);
 
   const [date, setDate] = useState(getStringDate(new Date()));
   const [emotion, setEmotion] = useState(3);
   const [content, setContent] = useState("");
 
-  const handleClickEmote = (emotion) => {
+  const handleClickEmote = useCallback((emotion) => {
     setEmotion(emotion);
-  };
+  }, []);
 
   const navigate = useNavigate();
 
@@ -87,6 +52,13 @@ const DiaryEditor = ({ isEdit, originData }) => {
     navigate("/", { replace: true });
   };
 
+  const handleRemove = () => {
+    if (window.confirm("일기를 삭제하시겠습니까?")) {
+      onRemove(originData.id);
+      navigate("/", { replace: true });
+    }
+  };
+
   useEffect(() => {
     if (isEdit) {
       setDate(getStringDate(new Date(+originData.date)));
@@ -100,6 +72,15 @@ const DiaryEditor = ({ isEdit, originData }) => {
       <Header
         headText={isEdit ? "일기 수정하기" : " 일기 작성하기"}
         leftChild={<Button text={"< 뒤로가기"} onClick={() => navigate(-1)} />}
+        rightChild={
+          isEdit && (
+            <Button
+              type={"nagative"}
+              text={"삭제하기"}
+              onClick={handleRemove}
+            />
+          )
+        }
       />
 
       <div>
